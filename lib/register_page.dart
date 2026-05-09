@@ -108,12 +108,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // --- INPUT NOMOR HP HANYA ANGKA ---
+                    // --- INPUT Nama Lengkap ---
                     _buildTextField(
-                      controller:
-                          _phoneController, // Anda bisa mengganti nama variabel ini nanti jika mau
-                      hint: "Nama Lengkap", // Nama kolom berubah jadi Nama
-                      icon: Icons.person_outline, // Icon berubah jadi orang
+                      controller: _phoneController,
+                      hint: "Nama Lengkap",
+                      icon: Icons.person_outline,
                       type: TextInputType
                           .text, // 'text' memungkinkan input Huruf dan Angka (Bebas)
                       isPasswordField: false,
@@ -160,16 +159,14 @@ class _RegisterPageState extends State<RegisterPage> {
                               return;
                             }
 
-                            // 4. Masukkan ke dalam list dan simpan secara permanen
+                            // 4. Masukkan ke dalam list dan simpan
                             userListRaw.add(json.encode(newUser));
                             await prefs.setStringList('user_list', userListRaw);
 
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                  "Akun berhasil dibuat!",
-                                ),
+                                content: Text("Akun berhasil dibuat!"),
                               ),
                             );
                             Navigator.pop(context);

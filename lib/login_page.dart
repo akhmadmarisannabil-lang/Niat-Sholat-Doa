@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 30),
 
-                    // Cari bagian tombol LOGIN di file login_page.dart
+                    // tombol LOGIN
                     SizedBox(
                       width: double.infinity,
                       height: 50,
