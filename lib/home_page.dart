@@ -10,13 +10,54 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Text("Konfirmasi Keluar"),
+          content: const Text("Apakah anda ingin Keluar dari beranda?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Color.fromARGB(255, 14, 11, 11)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/login',
+                ); // Pindah ke Login
+              },
+              child: const Text(
+                "Keluar",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // List halaman untuk navigasi (Hanya memisahkan tampilan berdasarkan index)
+    // List halaman untuk navigasi
     final List<Widget> pages = [
-      _buildSholatMenu(), // Menu Sholat
-      _buildDoaMenu(), // Menu Doa (Konten daftar dikosongkan)
-      _buildProfileCard(), // Profil Pengguna
+      _buildSholatMenu(),
+      _buildDoaMenu(),
+      _buildProfileCard(),
     ];
 
     return Scaffold(
@@ -24,14 +65,14 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 0,
         title: const Text(
-          "Dashboard Ibadah",
+          "Beranda",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.teal,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+            onPressed: _showLogoutDialog,
           ),
         ],
       ),
@@ -41,7 +82,9 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          boxShadow: [const BoxShadow(color: Colors.black12, blurRadius: 10)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          ],
         ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -51,8 +94,11 @@ class _HomePageState extends State<HomePage> {
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.mosque), label: "Sholat"),
-            BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Doa"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu_book),
+              label: "Sholat",
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.mosque), label: "Doa"),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
           ],
         ),

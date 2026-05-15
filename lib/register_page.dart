@@ -37,6 +37,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    const Icon(
+                      Icons.menu_book_rounded,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 10),
                     const Text(
                       "Buat Akun Baru",
                       style: TextStyle(
@@ -46,19 +52,48 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 30),
+                    // Field Nama
                     _buildTextField(
                       _nameController,
                       "Nama Lengkap",
                       Icons.person,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return "Nama wajib diisi";
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 15),
-                    _buildTextField(_emailController, "Email", Icons.email),
+                    // Field Email dengan validasi format
+                    _buildTextField(
+                      _emailController,
+                      "Email",
+                      Icons.email,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return "Email wajib diisi";
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return "Format email tidak valid (contoh: user@gmail.com)";
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 15),
+                    // Field Password dengan minimal 6 karakter
                     _buildTextField(
                       _passwordController,
                       "Password",
                       Icons.lock,
                       isPass: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return "Password wajib diisi";
+                        if (value.length < 6)
+                          return "Password minimal 6 karakter";
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 30),
                     SizedBox(
@@ -81,12 +116,26 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        "Sudah punya akun? Login",
-                        style: TextStyle(color: Colors.white70),
-                      ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Sudah punya akun? ",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.tealAccent,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -103,13 +152,13 @@ class _RegisterPageState extends State<RegisterPage> {
     String hint,
     IconData icon, {
     bool isPass = false,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isPass ? _isObscure : false,
       style: const TextStyle(color: Colors.white),
-      validator: (value) =>
-          value == null || value.isEmpty ? "Bidang ini wajib diisi" : null,
+      validator: validator,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.white70),
         suffixIcon: isPass
@@ -140,20 +189,24 @@ class _RegisterPageState extends State<RegisterPage> {
       List<String> userListRaw = prefs.getStringList('user_list') ?? [];
       String email = _emailController.text.trim();
 
+      // Cek apakah email sudah terdaftar
       bool isEmailExists = userListRaw.any((item) {
         Map<String, dynamic> user = json.decode(item);
         return user['email'] == email;
       });
 
       if (isEmailExists) {
-        // Cek apakah widget masih aktif sebelum menggunakan context (perbaikan async gap)
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Email ini sudah terdaftar!")),
+          const SnackBar(
+            content: Text("Email ini sudah terdaftar! Gunakan email lain."),
+            backgroundColor: Colors.redAccent,
+          ),
         );
         return;
       }
 
+      // Simpan User Baru
       Map<String, String> newUser = {
         'email': email,
         'password': _passwordController.text.trim(),
@@ -163,7 +216,6 @@ class _RegisterPageState extends State<RegisterPage> {
       userListRaw.add(json.encode(newUser));
       await prefs.setStringList('user_list', userListRaw);
 
-      // Cek apakah widget masih aktif sebelum navigasi (perbaikan async gap)
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Registrasi Berhasil! Silakan Login.")),
